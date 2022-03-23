@@ -23,7 +23,7 @@ class Scanner {
             current += 1
         }
         
-        tokens.append(Token(type: .eof, lexeme: "", literal: "", line: line))
+        tokens.append(Token(type: .eof, lexeme: "", literal: nil, line: line))
         print(tokens)
         return tokens
     }
@@ -56,8 +56,36 @@ class Scanner {
         case " ", "\r", "\t": break
         case "\n": line += 1
         case "\"": try string()
-        default: throw ScannerError.unexpectedCharacter
+        default:
+            if (isDigit(character)) {
+                number()
+            } else {
+                throw ScannerError.unexpectedCharacter
+            }
         }
+    }
+    
+    private func number() {
+        while isDigit(peek()) { current += 1 }
+        
+        if (peek() == "." && isDigit(peekNext())) {
+            // Add the '.' to the sequence...
+            current += 1
+            
+            while (isDigit(peek())) { current += 1 }
+        }
+        
+        let literal = String(source[source.index(source.startIndex, offsetBy: start)...source.index(source.startIndex, offsetBy: current)])
+        addToken(type: .number, literal: Double(literal))
+    }
+    
+    private func peekNext() -> Character {
+        if isAtEnd(index: current + 2) { return "\0" }
+        return source[source.index(source.startIndex, offsetBy: current + 2)]
+    }
+    
+    private func isDigit(_ character: Character) -> Bool {
+        character >= "0" && character <= "9"
     }
     
     private func string() throws {
@@ -89,10 +117,10 @@ class Scanner {
     }
     
     private func addToken(type: TokenType) {
-        addToken(type: type, literal: "")
+        addToken(type: type, literal: nil)
     }
     
-    private func addToken(type: TokenType, literal: String) {
+    private func addToken(type: TokenType, literal: Any?) {
         let startIndex = source.index(source.startIndex, offsetBy: start)
         let endIndex = source.index(source.startIndex, offsetBy: current)
         let lexeme = String(source[startIndex...endIndex])
