@@ -13,6 +13,7 @@ class Scanner {
     
     enum ScannerError: Error {
         case unexpectedCharacter
+        case unterminatedString
     }
     
     func scanTokens() throws -> [Token] {
@@ -54,8 +55,29 @@ class Scanner {
             }
         case " ", "\r", "\t": break
         case "\n": line += 1
+        case "\"": try string()
         default: throw ScannerError.unexpectedCharacter
         }
+    }
+    
+    private func string() throws {
+        while(peek() != "\"" && !isAtEnd(index: current)) {
+            // Scan through the string...
+            if peek() == "\n" { line += 1 }
+            current += 1
+        }
+        
+        // Make sure that string is terminated
+        if isAtEnd(index: current) {
+            throw ScannerError.unterminatedString
+        }
+        
+        // Grab the closing `"`
+        current += 1
+        
+        // Get the string literal...
+        let value = String(source[source.index(source.startIndex, offsetBy: start)...source.index(source.startIndex, offsetBy: current)])
+        addToken(type: .string, literal: value)
     }
     
     private func peek() -> Character { // This is called a `lookahead`
