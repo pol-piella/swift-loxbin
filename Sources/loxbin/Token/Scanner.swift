@@ -63,7 +63,7 @@ class Scanner {
     private func string() throws {
         while(peek() != "\"" && !isAtEnd(index: current)) {
             // Scan through the string...
-            if peek() == "\n" { line += 1 }
+            if peek() == "\n" { line += 1 } // Multiline strings are allowed
             current += 1
         }
         
@@ -76,7 +76,10 @@ class Scanner {
         current += 1
         
         // Get the string literal...
-        let value = String(source[source.index(source.startIndex, offsetBy: start)...source.index(source.startIndex, offsetBy: current)])
+        var value = String(source[source.index(source.startIndex, offsetBy: start)...source.index(source.startIndex, offsetBy: current)])
+        // Removes opening and closing `"`
+        value.removeFirst()
+        value.removeLast()
         addToken(type: .string, literal: value)
     }
     
