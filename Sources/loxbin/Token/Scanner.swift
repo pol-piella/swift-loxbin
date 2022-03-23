@@ -52,6 +52,8 @@ class Scanner {
             } else {
                 addToken(type: .slash)
             }
+        case " ", "\r", "\t": break
+        case "\n": line += 1
         default: throw ScannerError.unexpectedCharacter
         }
     }
