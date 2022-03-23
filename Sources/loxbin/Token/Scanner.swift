@@ -16,13 +16,14 @@ class Scanner {
     }
     
     func scanTokens() throws -> [Token] {
-        while(!isAtEnd()) {
+        while(!isAtEnd(index: current)) {
             start = current
             try scanToken()
             current += 1
         }
         
         tokens.append(Token(type: .eof, lexeme: "", literal: "", line: line))
+        print(tokens)
         return tokens
     }
     
@@ -39,6 +40,10 @@ class Scanner {
         case "+": addToken(type: .plus)
         case ";": addToken(type: .semicolon)
         case "*": addToken(type: .star)
+        case "!": addToken(type: match(expected: "=") ? .bangEqual : .bang)
+        case "=": addToken(type: match(expected: "=") ? .equalEqual : .equal)
+        case "<": addToken(type: match(expected: "=") ? .lessEqual : .less)
+        case ">": addToken(type: match(expected: "=") ? .greaterEqual : .greater)
         default: throw ScannerError.unexpectedCharacter
         }
     }
@@ -55,7 +60,16 @@ class Scanner {
         tokens.append(Token(type: type, lexeme: lexeme, literal: literal, line: line))
     }
     
-    private func isAtEnd() -> Bool {
-        current >= source.count
+    private func match(expected: String) -> Bool {
+        guard !isAtEnd(index: current + 1) else { return false }
+        if String(source[source.index(source.startIndex, offsetBy: current + 1)]) != expected {
+            return false
+        }
+        current += 1
+        return true
+    }
+    
+    private func isAtEnd(index: Int) -> Bool {
+        index >= source.count
     }
 }
