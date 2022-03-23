@@ -44,8 +44,21 @@ class Scanner {
         case "=": addToken(type: match(expected: "=") ? .equalEqual : .equal)
         case "<": addToken(type: match(expected: "=") ? .lessEqual : .less)
         case ">": addToken(type: match(expected: "=") ? .greaterEqual : .greater)
+        case "/":
+            if (match(expected: "/")) {
+                while(peek() != "\n" && !isAtEnd(index: current)) {
+                    current += 1
+                }
+            } else {
+                addToken(type: .slash)
+            }
         default: throw ScannerError.unexpectedCharacter
         }
+    }
+    
+    private func peek() -> String { // This is called a `lookahead`
+        if isAtEnd(index: current + 1) { return "\0" }
+        return String(source[source.index(source.startIndex, offsetBy: current + 1)])
     }
     
     private func addToken(type: TokenType) {
