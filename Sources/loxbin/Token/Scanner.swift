@@ -28,7 +28,7 @@ class Scanner {
     }
     
     func scanToken() throws {
-        let character = String(source[source.index(source.startIndex, offsetBy: current)])
+        let character: Character = source[source.index(source.startIndex, offsetBy: current)]
         switch character {
         case "(": addToken(type: .leftParen)
         case ")": addToken(type: .rightParen)
@@ -58,9 +58,9 @@ class Scanner {
         }
     }
     
-    private func peek() -> String { // This is called a `lookahead`
+    private func peek() -> Character { // This is called a `lookahead`
         if isAtEnd(index: current + 1) { return "\0" }
-        return String(source[source.index(source.startIndex, offsetBy: current + 1)])
+        return source[source.index(source.startIndex, offsetBy: current + 1)]
     }
     
     private func addToken(type: TokenType) {
@@ -75,9 +75,9 @@ class Scanner {
         tokens.append(Token(type: type, lexeme: lexeme, literal: literal, line: line))
     }
     
-    private func match(expected: String) -> Bool {
+    private func match(expected: Character) -> Bool {
         guard !isAtEnd(index: current + 1) else { return false }
-        if String(source[source.index(source.startIndex, offsetBy: current + 1)]) != expected {
+        if source[source.index(source.startIndex, offsetBy: current + 1)] != expected {
             return false
         }
         current += 1
