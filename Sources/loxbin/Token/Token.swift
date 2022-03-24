@@ -5,6 +5,6 @@ struct Token: CustomDebugStringConvertible {
     let line: Int
     
     var debugDescription: String {
-        "\(lexeme)"
+        "Type: '\(type.rawValue)' | Lexeme: '\(lexeme)' | Line: '\(line)' "
     }
 }

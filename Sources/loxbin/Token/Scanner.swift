@@ -5,6 +5,25 @@ class Scanner {
     var current: Int
     var tokens = [Token]()
     
+    let keywords: [String: TokenType] = [
+        "and": .and,
+        "class": .class,
+        "else": .else,
+        "false": .false,
+        "for": .for,
+        "fun": .fun,
+        "if": .if,
+        "nil": .nil,
+        "or": .or,
+        "print": .print,
+        "return": .return,
+        "super": .super,
+        "this": .this,
+        "true": .true,
+        "var": .var,
+        "while": .while
+    ]
+    
     init(source: String) {
         self.source = source
         start = 0
@@ -57,12 +76,36 @@ class Scanner {
         case "\n": line += 1
         case "\"": try string()
         default:
-            if (isDigit(character)) {
+            if isDigit(character) {
                 number()
+            } else if isAlpha(character) {
+                identifier()
             } else {
                 throw ScannerError.unexpectedCharacter
             }
         }
+    }
+    
+    private func identifier() {
+        while isAlpha(peek()) { current += 1 }
+        
+        let startIndex = source.index(source.startIndex, offsetBy: start)
+        let endIndex = source.index(source.startIndex, offsetBy: current)
+        let lexeme = String(source[startIndex...endIndex])
+        
+        if let tokenType = keywords[lexeme] {
+            addToken(type: tokenType)
+        } else {
+            addToken(type: .identifier)
+        }
+    }
+    
+    private func isAlphaNumeric(_ character: Character) -> Bool {
+        isDigit(character) || isAlpha(character)
+    }
+    
+    private func isAlpha(_ character: Character) -> Bool {
+        character.isLetter || character == "_"
     }
     
     private func number() {
@@ -85,7 +128,7 @@ class Scanner {
     }
     
     private func isDigit(_ character: Character) -> Bool {
-        character >= "0" && character <= "9"
+        character.isNumber
     }
     
     private func string() throws {
